@@ -37,6 +37,13 @@ local function requestLspRefCount()
 					lspCount.file.references = lspCount.file.references + 1
 				end
 			end
+			vim.api.nvim_exec_autocmds("User", {
+				pattern = "RefsCounted",
+				data = {
+					refFile = lspCount.file.references,
+					refWorkspace = lspCount.workspace.references,
+				},
+			})
 		end
 	end)
 	vim.lsp.buf_request(0, "textDocument/definition", params, function(error, defs)
@@ -49,9 +56,18 @@ local function requestLspRefCount()
 					lspCount.file.definitions = lspCount.file.definitions + 1
 				end
 			end
+			vim.api.nvim_exec_autocmds("User", {
+				pattern = "DefsCounted",
+				data = {
+					defFile = lspCount.file.definitions,
+					defWorkspace = lspCount.workspace.definitions,
+				},
+			})
 		end
 	end)
 end
+
+function M.run() requestLspRefCount() end
 
 ---Returns the number of definitions/references as identified by LSP as table
 ---for the current file and for the whole workspace.
